@@ -1,4 +1,4 @@
-![visitors](https://visitor-badge.laobi.icu/badge?page_id=christianebs.js-pdvz) ![GitHub Repo stars](https://img.shields.io/github/stars/christianebs/js-pdv) ![GitHub pull requests](https://img.shields.io/github/issues-pr/christianebs/js-pdv) ![GitHub closed issues](https://img.shields.io/github/issues-closed/christianebs/js-pdv)
+![visitors](https://visitor-badge.laobi.icu/badge?page_id=christianebs.js-pdv) ![GitHub Repo stars](https://img.shields.io/github/stars/christianebs/js-pdv) ![GitHub pull requests](https://img.shields.io/github/issues-pr/christianebs/js-pdv) ![GitHub closed issues](https://img.shields.io/github/issues-closed/christianebs/js-pdv)
 
 # API Sistema de PDV
 
