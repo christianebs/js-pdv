@@ -36,16 +36,69 @@ const cadastrarProduto = async (req, res) => {
       .where("id", produtoId)
       .first();
 
-    res
-      .status(200)
-      .json({
-        message: "Produto cadastrado com sucesso",
-        produto: produtoCadastrado,
-      });
+    res.status(200).json({
+      message: "Produto cadastrado com sucesso",
+      produto: produtoCadastrado,
+    });
   } catch (error) {
     res
       .status(500)
       .json({ message: "Erro interno do servidor", error: error.message });
+  }
+};
+
+const editarDadosProduto = async (req, res) => {
+  const { descricao, quantidade_estoque, valor, categoria_id } = req.body;
+  const imagem = req.file;
+
+  try {
+    const { id } = req.params;
+    const produto = await knex("produtos").where({ id }).first();
+
+    if (!produto) {
+      return res.status(404).json({ mensagem: "Produto não encontrado." });
+    }
+
+    let imagemProdutoPath = produto.produto_imagem;
+
+    if (imagem) {
+      const { originalname, mimetype, buffer } = imagem;
+
+      if (produto.produto_imagem) {
+        await excluirImagem(produto.produto_imagem);
+      }
+
+      const imagemProduto = await uploadImagem(
+        `produtos/${id}/${originalname}`,
+        buffer,
+        mimetype
+      );
+
+      imagemProdutoPath = imagemProduto.path;
+    }
+
+    await knex("produtos").where({ id }).update({
+      descricao,
+      quantidade_estoque,
+      valor,
+      categoria_id,
+      produto_imagem: imagemProdutoPath,
+    });
+
+    const produtoAtualizado = await knex("produtos").where({ id }).first();
+
+    produtoAtualizado.produto_imagem = produtoAtualizado.produto_imagem
+      ? construirUrlImagem(produtoAtualizado.produto_imagem)
+      : null;
+
+    res.status(200).json({
+      mensagem: "Produto atualizado com sucesso",
+      produto: produtoAtualizado,
+    });
+  } catch (error) {
+    res
+      .status(500)
+      .json({ mensagem: "Erro interno do servidor", error: error.message });
   }
 };
 
@@ -100,65 +153,6 @@ const detalharProduto = async (req, res) => {
     req.produto.produto_imagem = construirUrlImagem(req.produto.produto_imagem);
   }
   return res.status(200).json(req.produto);
-};
-
-const editarDadosProduto = async (req, res) => {
-  const imagem = req.file;
-  const { descricao, quantidade_estoque, valor, categoria_id } = req.body;
-
-  try {
-    const produto = await knex("produtos")
-      .where({ id: req.produto.id })
-      .first();
-
-    if (!produto) {
-      return res.status(400).json({ mensagem: "Produto não encontrado." });
-    }
-
-    let imagemProdutoPath = produto.produto_imagem;
-
-    if (req.file) {
-      const { originalname, mimetype, buffer } = req.file;
-
-      if (produto.produto_imagem) {
-        await excluirImagem(produto.produto_imagem);
-      }
-
-      const imagemProduto = await uploadImagem(
-        `produtos/${req.produto.id}/${originalname}`,
-        buffer,
-        mimetype
-      );
-      imagemProdutoPath = imagemProduto.path;
-    }
-
-    await knex("produtos").where({ id: req.produto.id }).update({
-      descricao,
-      quantidade_estoque,
-      valor,
-      categoria_id,
-      produto_imagem: imagemProdutoPath,
-    });
-
-    const produtoAtualizado = await knex("produtos")
-      .where({ id: req.produto.id })
-      .first();
-
-    if (!produtoAtualizado) {
-      return res.status(400).json({ mensagem: "Erro ao atualizar o produto." });
-    }
-
-    produtoAtualizado.produto_imagem = produtoAtualizado.produto_imagem
-      ? construirUrlImagem(produtoAtualizado.produto_imagem)
-      : null;
-
-    return res.status(200).json({
-      mensagem: "Produto atualizado com sucesso:",
-      Produto: produtoAtualizado,
-    });
-  } catch (error) {
-    return res.status(500).json({ mensagem: "Erro interno do servidor." });
-  }
 };
 
 const deletarProduto = async (req, res) => {
