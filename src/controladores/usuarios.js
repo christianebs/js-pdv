@@ -5,26 +5,32 @@ const cadastrarUsuario = async (req, res) => {
   const senhaCriptografada = req.senhaCriptografada;
 
   try {
-    const usuario = await knex("usuarios")
-      .insert({
-        nome,
-        email,
-        senha: senhaCriptografada,
-      })
-      .returning("*");
+    const novoUsuario = {
+      nome,
+      email,
+      senha: senhaCriptografada,
+    };
 
-    if (!usuario[0]) {
-      return res.status(400).json({ mensagem: "Usuário não cadastrado." });
+    const [usuarioId] = await knex("usuarios").insert(novoUsuario);
+
+    const usuario = await knex("usuarios").where("id", usuarioId).first();
+
+    if (!usuario) {
+      return res.status(404).json({ message: "Usuário não encontrado" });
     }
 
-    const { senha: senhaUsuario, ...novoUsuario } = usuario[0];
+    const { senha: senhaUsuario, ...dadosUsuario } = usuario;
 
-    return res.status(201).json({
-      mensagem: "Usuário cadastrado com sucesso:",
-      Usuario: novoUsuario,
-    });
+    res
+      .status(200)
+      .json({
+        message: "Usuário cadastrado com sucesso",
+        usuario: dadosUsuario,
+      });
   } catch (error) {
-    return res.status(500).json({ mensagem: "Erro interno do servidor." });
+    res
+      .status(500)
+      .json({ message: "Erro interno do servidor", error: error.message });
   }
 };
 

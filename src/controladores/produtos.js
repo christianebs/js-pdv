@@ -8,25 +8,19 @@ const cadastrarProduto = async (req, res) => {
   const { descricao, quantidade_estoque, valor, categoria_id } = req.body;
 
   try {
-    let produto = await knex("produtos")
-      .insert({
-        descricao,
-        quantidade_estoque,
-        valor,
-        categoria_id,
-      })
-      .returning("*");
+    const novoProduto = {
+      descricao,
+      quantidade_estoque,
+      valor,
+      categoria_id,
+    };
 
-    if (!produto[0]) {
-      return res.status(404).json({ mensagem: "Produto não cadastrado." });
-    }
-
-    const id = produto[0].id;
+    const [produtoId] = await knex("produtos").insert(novoProduto);
 
     if (req.file) {
       const { originalname, mimetype, buffer } = req.file;
       const imagemProduto = await uploadImagem(
-        `produtos/${id}/${originalname}`,
+        `produtos/${produtoId}/${originalname}`,
         buffer,
         mimetype
       );
@@ -35,19 +29,23 @@ const cadastrarProduto = async (req, res) => {
         .update({
           produto_imagem: imagemProduto.path,
         })
-        .where({ id });
-
-      produto[0].produto_imagem = imagemProduto.url;
+        .where({ id: produtoId });
     }
 
-    return res
-      .status(201)
+    const produtoCadastrado = await knex("produtos")
+      .where("id", produtoId)
+      .first();
+
+    res
+      .status(200)
       .json({
-        mensagem: "Produto cadastrado com sucesso:",
-        Produto: produto[0],
+        message: "Produto cadastrado com sucesso",
+        produto: produtoCadastrado,
       });
   } catch (error) {
-    return res.status(500).json({ mensagem: "Erro interno do servidor." });
+    res
+      .status(500)
+      .json({ message: "Erro interno do servidor", error: error.message });
   }
 };
 
@@ -109,21 +107,21 @@ const editarDadosProduto = async (req, res) => {
   const { descricao, quantidade_estoque, valor, categoria_id } = req.body;
 
   try {
-    const produtoAntigo = await knex("produtos")
+    const produto = await knex("produtos")
       .where({ id: req.produto.id })
       .first();
 
-    if (!produtoAntigo) {
+    if (!produto) {
       return res.status(400).json({ mensagem: "Produto não encontrado." });
     }
 
-    let imagemProdutoPath = produtoAntigo.produto_imagem;
+    let imagemProdutoPath = produto.produto_imagem;
 
     if (req.file) {
       const { originalname, mimetype, buffer } = req.file;
 
-      if (produtoAntigo.produto_imagem) {
-        await excluirImagem(produtoAntigo.produto_imagem);
+      if (produto.produto_imagem) {
+        await excluirImagem(produto.produto_imagem);
       }
 
       const imagemProduto = await uploadImagem(
@@ -189,6 +187,7 @@ const deletarProduto = async (req, res) => {
     const produtoDeletado = await knex("produtos")
       .where({ id: produto_id })
       .del();
+
     if (!produtoDeletado) {
       return res
         .status(404)
