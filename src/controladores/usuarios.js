@@ -21,12 +21,10 @@ const cadastrarUsuario = async (req, res) => {
 
     const { senha: senhaUsuario, ...dadosUsuario } = usuario;
 
-    res
-      .status(200)
-      .json({
-        message: "Usuário cadastrado com sucesso",
-        usuario: dadosUsuario,
-      });
+    res.status(200).json({
+      message: "Usuário cadastrado com sucesso",
+      usuario: dadosUsuario,
+    });
   } catch (error) {
     res
       .status(500)
@@ -44,22 +42,25 @@ const editarDadosUsuario = async (req, res) => {
     const dadosAtualizados = {
       nome,
       email,
-      senha: senhaCriptografada
+      senha: senhaCriptografada,
     };
 
-    await knex('usuarios')
-      .where('id', id)
-      .update(dadosAtualizados);
+    await knex("usuarios").where("id", id).update(dadosAtualizados);
 
-    const usuarioAtualizado = await knex('usuarios')
-      .where('id', id)
-      .first();
+    const usuarioAtualizado = await knex("usuarios").where("id", id).first();
 
-    res.status(200).json({ mensagem: 'Usuário atualizado com sucesso', usuario: usuarioAtualizado });
+    res
+      .status(200)
+      .json({
+        mensagem: "Usuário atualizado com sucesso",
+        usuario: usuarioAtualizado,
+      });
   } catch (error) {
-    res.status(500).json({ mensagem: 'Erro interno do servidor', error: error.message });
+    res
+      .status(500)
+      .json({ mensagem: "Erro interno do servidor", error: error.message });
   }
-}
+};
 
 const detalharUsuario = async (req, res) => {
   try {

@@ -21,12 +21,10 @@ const cadastrarCliente = async (req, res) => {
       .where("id", clienteId)
       .first();
 
-    res
-      .status(200)
-      .json({
-        message: "Cliente cadastrado com sucesso",
-        cliente: clienteCadastrado,
-      });
+    res.status(200).json({
+      message: "Cliente cadastrado com sucesso",
+      cliente: clienteCadastrado,
+    });
   } catch (error) {
     res
       .status(500)
@@ -47,22 +45,25 @@ const editarDadosCliente = async (req, res) => {
       rua,
       numero,
       bairro,
-      cidade
+      cidade,
     };
 
-    await knex('clientes')
-      .where('id', id)
-      .update(dadosAtualizados);
+    await knex("clientes").where("id", id).update(dadosAtualizados);
 
-    const clienteAtualizado = await knex('clientes')
-      .where('id', id)
-      .first();
+    const clienteAtualizado = await knex("clientes").where("id", id).first();
 
-    res.status(200).json({ mensagem: 'Cliente atualizado com sucesso', cliente: clienteAtualizado });
+    res
+      .status(200)
+      .json({
+        mensagem: "Cliente atualizado com sucesso",
+        cliente: clienteAtualizado,
+      });
   } catch (error) {
-    res.status(500).json({ mensagem: 'Erro interno do servidor', error: error.message });
+    res
+      .status(500)
+      .json({ mensagem: "Erro interno do servidor", error: error.message });
   }
-}
+};
 
 const listarClientes = async (req, res) => {
   try {
