@@ -1,4 +1,5 @@
 const knex = require("../conexao");
+const paginacao = require("../utils/paginacao");
 
 const cadastrarCliente = async (req, res) => {
   const { nome, email, cpf, cep, rua, numero, bairro, cidade } = req.body;
@@ -64,11 +65,29 @@ const editarDadosCliente = async (req, res) => {
 };
 
 const listarClientes = async (req, res) => {
+  const pagina = parseInt(req.query.pagina) || 1;
+  const limite = parseInt(req.query.limite) || 10;
+  const offset = (pagina - 1) * limite;
+
   try {
-    const clientes = await knex("clientes").orderBy("id");
-    return res.status(200).json({ clientes });
-  } catch (error) {
+    const clientes = await knex("clientes")
+      .orderBy("id", "asc")
+      .offset(offset)
+      .limit(limite);
+
+    const totalClientes = await knex("clientes").count("* as total").first();
+    const respostaPaginacao = paginacao(pagina, limite, totalClientes.total);
+
+    const listaDeClientes = {
+      ...respostaPaginacao,
+      dados: clientes,
+    };
+
     return res
+      .status(200)
+      .json({ mensagem: "Lista de Clientes:", clientes: listaDeClientes });
+  } catch (error) {
+    res
       .status(500)
       .json({ mensagem: "Erro interno do servidor", error: error.message });
   }

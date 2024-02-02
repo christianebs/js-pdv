@@ -127,12 +127,11 @@ const listarProdutos = async (req, res) => {
       return produto;
     });
 
-    const totalProdutosQuery = knex('produtos');
+    const totalProdutosQuery = knex("produtos");
     if (categoriaIds) {
-      totalProdutosQuery.whereIn('categoria_id', categoriaIds);
+      totalProdutosQuery.whereIn("categoria_id", categoriaIds);
     }
-    const totalProdutos = await totalProdutosQuery.count('* as total').first();
-
+    const totalProdutos = await totalProdutosQuery.count("* as total").first();
     const respostaPaginacao = paginacao(pagina, limite, totalProdutos.total);
 
     const listaDeProdutos = {
@@ -144,7 +143,9 @@ const listarProdutos = async (req, res) => {
       .status(200)
       .json({ mensagem: "Lista de Produtos:", produtos: listaDeProdutos });
   } catch (error) {
-    return res.status(500).json({ mensagem: 'Erro interno do servidor', error: error.message });
+    return res
+      .status(500)
+      .json({ mensagem: "Erro interno do servidor", error: error.message });
   }
 };
 

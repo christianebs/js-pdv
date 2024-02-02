@@ -2,8 +2,12 @@ const knex = require("../conexao");
 
 const listarCategorias = async (req, res) => {
   try {
-    const categorias = await knex("categorias").orderBy("id");
-    return res.status(200).json({ categorias });
+    const listaDeCategorias = await knex("categorias").orderBy("id", "asc");
+
+    return res.status(200).json({
+      mensagem: "Lista de Categorias:",
+      categorias: listaDeCategorias,
+    });
   } catch (error) {
     return res
       .status(500)

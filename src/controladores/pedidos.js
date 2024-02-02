@@ -1,4 +1,5 @@
 const knex = require("../conexao");
+const paginacao = require("../utils/paginacao");
 
 const cadastrarPedido = async (req, res) => {
   const { observacao, pedido_produtos } = req.body;
@@ -34,9 +35,48 @@ const cadastrarPedido = async (req, res) => {
 };
 
 const listarPedidos = async (req, res) => {
+  const clienteId = req.cliente ? req.cliente.id : null;
+  const pagina = parseInt(req.query.pagina) || 1;
+  const limite = parseInt(req.query.limite) || 10;
+  const offset = (pagina - 1) * limite;
+
   try {
-    const pedidos = await knex("pedidos").orderBy("id");
-    return res.status(200).json({ pedidos });
+    let query = knex("pedidos")
+      .orderBy("id", "asc")
+      .offset(offset)
+      .limit(limite);
+
+    if (clienteId) {
+      query.where({ cliente_id: clienteId });
+    }
+
+    const pedidos = await query;
+
+    for (const pedido of pedidos) {
+      const pedidoProdutos = await knex("pedido_produtos").where({
+        pedido_id: pedido.id,
+      });
+
+      pedido.pedido_produtos = pedidoProdutos;
+    }
+
+    const totalQuery = knex("pedidos").count("* as total");
+    if (clienteId) {
+      totalQuery.where({ cliente_id: clienteId });
+    }
+
+    const totalPedidos = await totalQuery.first();
+    const respostaPaginacao = paginacao(pagina, limite, totalPedidos.total);
+
+    const listaDePedidos = {
+      ...respostaPaginacao,
+      dados: pedidos,
+    };
+
+    return res.status(200).json({
+      mensagem: "Lista de Pedidos:",
+      pedidos: listaDePedidos,
+    });
   } catch (error) {
     return res
       .status(500)
