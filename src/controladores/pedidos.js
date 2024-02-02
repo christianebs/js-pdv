@@ -22,12 +22,10 @@ const cadastrarPedido = async (req, res) => {
       .where("id", pedidoId)
       .first();
 
-    res
-      .status(200)
-      .json({
-        message: "Pedido cadastrado com sucesso",
-        pedido: pedidoCadastrado,
-      });
+    res.status(200).json({
+      message: "Pedido cadastrado com sucesso",
+      pedido: pedidoCadastrado,
+    });
   } catch (error) {
     res
       .status(500)
@@ -37,8 +35,12 @@ const cadastrarPedido = async (req, res) => {
 
 const listarPedidos = async (req, res) => {
   try {
+    const pedidos = await knex("pedidos").orderBy("id");
+    return res.status(200).json({ pedidos });
   } catch (error) {
-    return res.status(500).json({ mensagem: "Erro interno do servidor." });
+    return res
+      .status(500)
+      .json({ mensagem: "Erro interno do servidor", error: error.message });
   }
 };
 

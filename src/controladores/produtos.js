@@ -118,33 +118,33 @@ const listarProdutos = async (req, res) => {
       query = query.whereIn("categoria_id", categoriaIds);
     }
 
-    let produtos = await query;
+    const produtos = await query;
 
-    produtos = produtos.map((produto) => {
+    const produtosComUrls = produtos.map((produto) => {
       if (produto.produto_imagem) {
         produto.produto_imagem = construirUrlImagem(produto.produto_imagem);
       }
       return produto;
     });
 
-    const totalProdutosQuery = knex("produtos");
+    const totalProdutosQuery = knex('produtos');
     if (categoriaIds) {
-      totalProdutosQuery.whereIn("categoria_id", categoriaIds);
+      totalProdutosQuery.whereIn('categoria_id', categoriaIds);
     }
-    const totalProdutos = await totalProdutosQuery.count("* as total").first();
+    const totalProdutos = await totalProdutosQuery.count('* as total').first();
 
     const respostaPaginacao = paginacao(pagina, limite, totalProdutos.total);
 
     const listaDeProdutos = {
       ...respostaPaginacao,
-      dados: produtos,
+      dados: produtosComUrls,
     };
 
     return res
       .status(200)
-      .json({ mensagem: "Lista de Produtos:", Produtos: listaDeProdutos });
+      .json({ mensagem: "Lista de Produtos:", produtos: listaDeProdutos });
   } catch (error) {
-    return res.status(500).json({ mensagem: "Erro interno do servidor." });
+    return res.status(500).json({ mensagem: 'Erro interno do servidor', error: error.message });
   }
 };
 

@@ -52,12 +52,10 @@ const editarDadosCliente = async (req, res) => {
 
     const clienteAtualizado = await knex("clientes").where("id", id).first();
 
-    res
-      .status(200)
-      .json({
-        mensagem: "Cliente atualizado com sucesso",
-        cliente: clienteAtualizado,
-      });
+    res.status(200).json({
+      mensagem: "Cliente atualizado com sucesso",
+      cliente: clienteAtualizado,
+    });
   } catch (error) {
     res
       .status(500)
@@ -67,8 +65,12 @@ const editarDadosCliente = async (req, res) => {
 
 const listarClientes = async (req, res) => {
   try {
+    const clientes = await knex("clientes").orderBy("id");
+    return res.status(200).json({ clientes });
   } catch (error) {
-    res.status(500).json({ mensagem: "Erro interno do servidor." });
+    return res
+      .status(500)
+      .json({ mensagem: "Erro interno do servidor", error: error.message });
   }
 };
 
