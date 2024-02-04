@@ -49,12 +49,10 @@ const editarDadosUsuario = async (req, res) => {
 
     const usuarioAtualizado = await knex("usuarios").where("id", id).first();
 
-    res
-      .status(200)
-      .json({
-        mensagem: "Usuário atualizado com sucesso",
-        usuario: usuarioAtualizado,
-      });
+    res.status(200).json({
+      mensagem: "Usuário atualizado com sucesso",
+      usuario: usuarioAtualizado,
+    });
   } catch (error) {
     res
       .status(500)
@@ -66,8 +64,10 @@ const detalharUsuario = async (req, res) => {
   try {
     return res.status(200).json({ usuario });
   } catch (error) {
-    return res.status(500).json({ mensagem: 'Erro interno do servidor', error: error.message });
+    return res
+      .status(500)
+      .json({ mensagem: "Erro interno do servidor", error: error.message });
   }
-}
+};
 
 module.exports = { cadastrarUsuario, editarDadosUsuario, detalharUsuario };

@@ -153,9 +153,11 @@ const detalharProduto = async (req, res) => {
   try {
     return res.status(200).json({ produto });
   } catch (error) {
-    return res.status(500).json({ mensagem: 'Erro interno do servidor', error: error.message });
+    return res
+      .status(500)
+      .json({ mensagem: "Erro interno do servidor", error: error.message });
   }
-}
+};
 
 const deletarProduto = async (req, res) => {
   const produto_id = req.params.id;
