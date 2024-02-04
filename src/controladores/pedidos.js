@@ -23,12 +23,12 @@ const cadastrarPedido = async (req, res) => {
       .where("id", pedidoId)
       .first();
 
-    res.status(200).json({
+    return res.status(200).json({
       message: "Pedido cadastrado com sucesso",
       pedido: pedidoCadastrado,
     });
   } catch (error) {
-    res
+    return res
       .status(500)
       .json({ message: "Erro interno do servidor", error: error.message });
   }

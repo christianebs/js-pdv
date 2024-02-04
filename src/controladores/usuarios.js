@@ -21,12 +21,12 @@ const cadastrarUsuario = async (req, res) => {
 
     const { senha: senhaUsuario, ...dadosUsuario } = usuario;
 
-    res.status(200).json({
+    return res.status(200).json({
       message: "Usuário cadastrado com sucesso",
       usuario: dadosUsuario,
     });
   } catch (error) {
-    res
+    return res
       .status(500)
       .json({ message: "Erro interno do servidor", error: error.message });
   }
@@ -49,12 +49,12 @@ const editarDadosUsuario = async (req, res) => {
 
     const usuarioAtualizado = await knex("usuarios").where("id", id).first();
 
-    res.status(200).json({
+    return res.status(200).json({
       mensagem: "Usuário atualizado com sucesso",
       usuario: usuarioAtualizado,
     });
   } catch (error) {
-    res
+    return res
       .status(500)
       .json({ mensagem: "Erro interno do servidor", error: error.message });
   }

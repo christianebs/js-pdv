@@ -22,12 +22,12 @@ const cadastrarCliente = async (req, res) => {
       .where("id", clienteId)
       .first();
 
-    res.status(200).json({
+    return res.status(200).json({
       message: "Cliente cadastrado com sucesso",
       cliente: clienteCadastrado,
     });
   } catch (error) {
-    res
+    return res
       .status(500)
       .json({ message: "Erro interno do servidor", error: error.message });
   }
@@ -53,12 +53,12 @@ const editarDadosCliente = async (req, res) => {
 
     const clienteAtualizado = await knex("clientes").where("id", id).first();
 
-    res.status(200).json({
+    return res.status(200).json({
       mensagem: "Cliente atualizado com sucesso",
       cliente: clienteAtualizado,
     });
   } catch (error) {
-    res
+    return res
       .status(500)
       .json({ mensagem: "Erro interno do servidor", error: error.message });
   }

@@ -36,12 +36,12 @@ const cadastrarProduto = async (req, res) => {
       .where("id", produtoId)
       .first();
 
-    res.status(200).json({
+    return res.status(200).json({
       message: "Produto cadastrado com sucesso",
       produto: produtoCadastrado,
     });
   } catch (error) {
-    res
+    return res
       .status(500)
       .json({ message: "Erro interno do servidor", error: error.message });
   }
@@ -91,12 +91,12 @@ const editarDadosProduto = async (req, res) => {
       ? construirUrlImagem(produtoAtualizado.produto_imagem)
       : null;
 
-    res.status(200).json({
+    return res.status(200).json({
       mensagem: "Produto atualizado com sucesso",
       produto: produtoAtualizado,
     });
   } catch (error) {
-    res
+    return res
       .status(500)
       .json({ mensagem: "Erro interno do servidor", error: error.message });
   }
