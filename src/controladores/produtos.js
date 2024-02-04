@@ -160,7 +160,7 @@ const detalharProduto = async (req, res) => {
 };
 
 const deletarProduto = async (req, res) => {
-  const produto_id = req.params.id;
+  const { id: produto_id } = req.params;
 
   try {
     const produtoEstaVinculadoPedido = await produtoExisteEmPedido(produto_id);
@@ -171,30 +171,32 @@ const deletarProduto = async (req, res) => {
           "Não é possível deletar o produto pois ele está vinculado a um pedido.",
       });
     }
-    if (
-      produtoEstaVinculadoPedido &&
-      produtoEstaVinculadoPedido.produto_imagem
-    ) {
-      await excluirArquivo(produtoEstaVinculadoPedido.produto_imagem);
 
-      await knex("produtos").where({ id: produto_id }).update({
-        produto_imagem: null,
-      });
-    }
+    const produto = await knex("produtos").where({ id: produto_id }).first();
 
-    const produtoDeletado = await knex("produtos")
-      .where({ id: produto_id })
-      .del();
-
-    if (!produtoDeletado) {
+    if (!produto) {
       return res
         .status(404)
         .json({ mensagem: "Produto não encontrado ou já foi deletado." });
     }
 
-    return res.status(200).json({ mensagem: "Produto deletado com sucesso." });
+    if (produto.produto_imagem) {
+      await excluirArquivo(produto.produto_imagem);
+    }
+
+    const resultado = await knex("produtos").where({ id: produto_id }).del();
+
+    if (!resultado) {
+      return res
+        .status(404)
+        .json({ mensagem: "Produto não encontrado ou já foi deletado." });
+    }
+
+    return res.status(200).json({ mensagem: "Produto excluído com sucesso" });
   } catch (error) {
-    return res.status(500).json({ mensagem: "Erro interno do servidor." });
+    return res
+      .status(500)
+      .json({ mensagem: "Erro interno do servidor", error: error.message });
   }
 };
 
