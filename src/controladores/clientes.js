@@ -1,8 +1,17 @@
 const knex = require("../conexao");
 const paginacao = require("../utils/paginacao");
+const { validarFormatoEstado } = require("../utils/validarEstadoEmailCpf");
 
 const cadastrarCliente = async (req, res) => {
   const { nome, email, cpf, cep, rua, numero, bairro, cidade } = req.body;
+  let { estado } = req.body;
+
+  estado = estado.toUpperCase();
+
+  let estadoInvalido = validarFormatoEstado(estado);
+  if (estadoInvalido) {
+    return res.status(400).json({ mensagem: estadoInvalido });
+  }
 
   try {
     const novoCliente = {
@@ -36,6 +45,14 @@ const cadastrarCliente = async (req, res) => {
 const editarDadosCliente = async (req, res) => {
   const { nome, email, cpf, cep, rua, numero, bairro, cidade } = req.body;
   const { id } = req.params;
+  let { estado } = req.body;
+
+  estado = estado.toUpperCase();
+
+  let estadoInvalido = validarFormatoEstado(estado);
+  if (estadoInvalido) {
+    return res.status(400).json({ mensagem: estadoInvalido });
+  }
 
   try {
     const dadosAtualizados = {
